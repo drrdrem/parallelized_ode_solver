@@ -11,6 +11,15 @@ class butcher_tableau(object):
 
 
 def erk(butcher_tableau, weight_matrix, basis_fns, f_0, last_time, dt):
+    '''Explict Runge Kutta
+    Args
+        butcher_tableau: butcher_tableau for different order/ stage of explicit runge kutta.
+        weight_matrix (2D list): weight_matrix for f(t, x). dimension is (# of states, # of feature).
+        basis_fns: feature function basis for f(t, x). dimension is (# of feature).
+        f_0 (list): initial values. dimension is (# of states).
+        last_time (float): final time for numerical evaluation.
+        dt (float): delt t.
+    '''
     c = butcher_tableau.c
     b = butcher_tableau.b
     A = butcher_tableau.A
