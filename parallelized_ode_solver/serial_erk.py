@@ -1,10 +1,17 @@
 class csr(object):
     def __init__(self):
+        '''CSR Data Struncture for Sparse Matrix
+        '''
         pass
 
 
 class butcher_tableau(object):
     def __init__(self, c, b, A):
+        '''Butcher Tableau
+        c (list): weights for ks.
+        b (list): weights for times.
+        A (2D list): weights to compute recursive ki.
+        '''
         self.c = c
         self.b = b
         self.A = A
