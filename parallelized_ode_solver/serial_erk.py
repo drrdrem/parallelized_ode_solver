@@ -1,23 +1,20 @@
-class csr(object):
-    def __init__(self):
-        '''CSR Data Struncture for Sparse Matrix
-        '''
-        pass
+from data_structure import *
 
 
-class butcher_tableau(object):
-    def __init__(self, c, b, A):
-        '''Butcher Tableau
-        c (list): weights for ks.
-        b (list): weights for times.
-        A (2D list): weights to compute recursive ki.
-        '''
-        self.c = c
-        self.b = b
-        self.A = A
+def spmv(states_dim, csrRowPtr, csrColIdx, csrData, basis_fi, dt, c_stage, states):
+    ki = []
+    for idx in range(states_dim):
+        lower, upper = csrRowPtr[idx], csrRowPtr[idx+1]
+        kval = 0.
+        for i in range(lower, upper):
+            kval += csrData[i]*basis_fi[csrColIdx[i]]
+        kval *= dt
+        states[idx] += c_stage*kval
+        ki.append(kval)
+    return ki, states
 
 
-def erk(butcher_tableau, weight_matrix, basis_fns, f_0, last_time, dt):
+def erk(butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, f_0, last_time, dt):
     '''Explict Runge Kutta
     Args
         butcher_tableau: butcher_tableau for different order/ stage of explicit runge kutta.
@@ -54,15 +51,8 @@ def erk(butcher_tableau, weight_matrix, basis_fns, f_0, last_time, dt):
                     fi += A[stage][a_idx]*ks[a_idx][i]
                 f_tmp[i] = fi
             
-            ki = []
             basis_fi = basis_fns(ti, f_tmp)
-            for i in range(states_dim):
-                kval = 0.
-                for j in range(basis_dim):
-                    kval += weight_matrix[i][j]*basis_fi[j]
-                kval *= dt
-                ki.append(kval)
-                states[i] += c[stage]*kval
+            ki, states = spmv(states_dim, csrRowPtr, csrColIdx, csrData, basis_fi, dt, c[stage], states)
             ks.append(ki)
 
         t0 += dt
@@ -73,6 +63,7 @@ def erk(butcher_tableau, weight_matrix, basis_fns, f_0, last_time, dt):
 
 if __name__ == "__main__":
     from time import time
+    from data_generator import *
     c = [1/6, 1/3, 1/3, 1/6]
     b = [0, 1/2, 1/2, 1]
     A = [[0  ,   0, 0, 0],
@@ -85,8 +76,12 @@ if __name__ == "__main__":
     def linear_basis(t, states):
         return states
 
-    w_0 = [[-3, 0],
-           [0, -2]]
-    f_0 = [10, 5]
-    print(erk(rk4, w_0, linear_basis, f_0, 1, 0.1))
+    dim, csrRowPtr, csrColIdx, csrData = generateCSRMatrix(15)
+
+    f_0 = [1. for _ in range(dim)]
+    st = time()
+    serial_res = erk(rk4, csrRowPtr, csrColIdx, csrData, linear_basis, f_0, 1, 0.1)
+    ed = time()
+    print(serial_res)
+    print("Serial Time elapse: {}".format(ed-st))
 
