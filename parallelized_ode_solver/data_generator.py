@@ -70,3 +70,51 @@ def csr2jds(dim, csrRowPtr, csrColIdx, csrData):
             jdsData[jdsPos] = csrData[csrPos]
 
     return dim, jdsRowPerm, jdsRowNNZ, jdsColStartIdx, jdsColIdx, jdsData
+
+
+def csr2matrix(dim, csrRowPtr, csrColIdx, csrData):
+    matrix = [[0. for _ in range(dim)] for _ in range(dim)]
+
+    for i in range(dim):
+        for j in range(csrRowPtr[i], csrRowPtr[i+1]):
+            matrix[i][csrColIdx[j]] = csrData[j]
+
+    return matrix
+
+
+def matrix2csr(matrix):
+    dim = len(matrix)
+    csrRowPtr, csrColIdx, csrData = [], [], []
+    csrRowPtr = [0]
+    for i in range(dim):
+        val = csrRowPtr[-1]
+        for j in range(dim):
+            if matrix[i][j] != 0:
+                val += 1
+                csrColIdx.append(j)
+                csrData.append(matrix[i][j])
+        csrRowPtr.append(val)
+    return dim, csrRowPtr, csrColIdx, csrData
+
+
+if __name__ == "__main__":
+    dim, csrRowPtr, csrColIdx, csrData = generateCSRMatrix(5)
+    print("CSR:")
+    print(csrRowPtr)
+    print(csrColIdx)
+    print(csrData)
+    dim, jdsRowPerm, jdsRowNNZ, jdsColStartIdx, jdsColIdx, jdsData = csr2jds(dim, csrRowPtr, csrColIdx, csrData)
+    print("JDS:")
+    print(jdsRowPerm)
+    print(jdsRowNNZ)
+    print(jdsColStartIdx)
+    print(jdsColIdx)
+    print(jdsData)
+    matrix = csr2matrix(dim, csrRowPtr, csrColIdx, csrData)
+    print("csr2matrix:")
+    print(matrix)
+    dim, csrRowPtr, csrColIdx, csrData = matrix2csr(matrix)
+    print("matrix2csr:")
+    print(csrRowPtr)
+    print(csrColIdx)
+    print(csrData)
