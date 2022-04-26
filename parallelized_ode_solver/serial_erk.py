@@ -30,7 +30,7 @@ def erk(butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, f_0, last_tim
 
     order = len(b)
     
-    Nstep = int(last_time//dt)
+    Nstep = int(last_time/dt)
     states_dim = len(f_0)
     basis_fi = basis_fns(0, f_0)
     basis_dim = len(basis_fi)

@@ -1,4 +1,4 @@
-'''Seiral Version of ParaReal Algorithm
+'''Serial Version of ParaReal Algorithm
 
 '''
 from serial_erk import *
@@ -12,14 +12,15 @@ def parareal(csrRowPtr, csrColIdx, csrData, basis_fns, f_0, K, dt, coarse_alg, f
     N_states = int(len(f_0))
 
     xs = [f_0]
+    x_t = f_0
     for _ in range(Nstep):
-        x_t = erk(coars_butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, f_0, dt, coars_dt)
+        x_t = erk(coars_butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, x_t, dt, coars_dt)
         xs.append(x_t)
 
-    xks = [f_0]
     for k in range(K):
+        xks = [f_0]
         for t in range(Nstep):
-            h = erk(fin_butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, xs[t+1], dt, fin_dt)
+            h = erk(fin_butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, xs[t], dt, fin_dt)
             j = erk(coars_butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, xs[t], dt, coars_dt)
             g = erk(coars_butcher_tableau, csrRowPtr, csrColIdx, csrData, basis_fns, xks[-1], dt, coars_dt)
             
@@ -46,8 +47,8 @@ if __name__ == "__main__":
     dim, csrRowPtr, csrColIdx, csrData = generateCSRMatrix(15)
 
     coarse_alg = (rk4, 0.05) 
-    fine_alg = (rk4, 0.01) 
-    K = 10
+    fine_alg = (rk4, 0.001) 
+    K = 50
     f_0 = [1. for _ in range(dim)]
     st = time()
     serial_res = parareal(csrRowPtr, csrColIdx, csrData, linear_basis, f_0, K, 0.1, coarse_alg, fine_alg)
