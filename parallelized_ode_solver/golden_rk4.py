@@ -1,7 +1,7 @@
 def rk4(y0, xn, h, w, f):
     
     # Calculating step size
-    n = int(xn//h)
+    n = int(xn/h)
     t0 = 0
     c = [1/6, 1/3, 1/3, 1/6]
     b = [0, 1/2, 1/2, 1]
@@ -27,3 +27,9 @@ def rk4(y0, xn, h, w, f):
       t0 = t0+h
     
     return yn
+
+if __name__ == "__main__":
+  def f(t, x):
+    return 0.11*x
+
+  print(rk4(1, 1, 0.1, 1, f))
